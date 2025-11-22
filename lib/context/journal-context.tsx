@@ -6,6 +6,7 @@ import { Message } from "@/lib/types";
 interface JournalContextType {
   messages: Message[];
   addMessage: (message: Omit<Message, "id" | "timestamp">) => void;
+  deleteMessage: (id: string) => void;
   clearMessages: () => void;
   getUserMessages: () => Message[];
 }
@@ -48,6 +49,10 @@ export function JournalProvider({ children }: { children: React.ReactNode }) {
     setMessages((prev) => [...prev, newMessage]);
   };
 
+  const deleteMessage = (id: string) => {
+    setMessages((prev) => prev.filter((msg) => msg.id !== id));
+  };
+
   const clearMessages = () => {
     setMessages([]);
     localStorage.removeItem(STORAGE_KEY);
@@ -59,7 +64,7 @@ export function JournalProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <JournalContext.Provider
-      value={{ messages, addMessage, clearMessages, getUserMessages }}
+      value={{ messages, addMessage, deleteMessage, clearMessages, getUserMessages }}
     >
       {children}
     </JournalContext.Provider>

@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useJournal } from "@/lib/context/journal-context";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
-import { Sparkles, Calendar } from "lucide-react";
+import { Sparkles, Calendar, Trash2 } from "lucide-react";
 
 export function MemoryJar() {
-  const { getUserMessages } = useJournal();
+  const { getUserMessages, deleteMessage } = useJournal();
   const [randomMemory, setRandomMemory] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const userMessages = getUserMessages();
   const positiveMessages = userMessages.filter(
@@ -22,6 +23,11 @@ export function MemoryJar() {
 
     // Clear highlight after 3 seconds
     setTimeout(() => setRandomMemory(null), 3000);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteMessage(id);
+    setDeletingId(null);
   };
 
   const formatDate = (timestamp: number) => {
@@ -81,20 +87,62 @@ export function MemoryJar() {
               .map((message) => (
                 <Card
                   key={message.id}
-                  className={`transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+                  className={`group relative transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
                     randomMemory === message.id
                       ? "ring-2 ring-primary shadow-xl scale-[1.02]"
                       : ""
                   }`}
                 >
                   <CardContent className="p-5">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                      <Calendar className="h-3.5 w-3.5" />
-                      <span>{formatDate(message.timestamp)}</span>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>{formatDate(message.timestamp)}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                        onClick={() =>
+                          deletingId === message.id
+                            ? handleDelete(message.id)
+                            : setDeletingId(message.id)
+                        }
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
-                    <p className="text-sm sm:text-base leading-relaxed text-foreground/90 line-clamp-4">
-                      {message.content}
-                    </p>
+
+                    {deletingId === message.id ? (
+                      <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 mb-3">
+                        <p className="text-xs text-destructive font-medium mb-2">
+                          确定删除这条记录？
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setDeletingId(null)}
+                            className="flex-1 h-7 text-xs"
+                          >
+                            取消
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDelete(message.id)}
+                            className="flex-1 h-7 text-xs"
+                          >
+                            删除
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm sm:text-base leading-relaxed text-foreground/90 line-clamp-4">
+                        {message.content}
+                      </p>
+                    )}
+
                     {message.tags && message.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-3">
                         {message.tags.map((tag) => (

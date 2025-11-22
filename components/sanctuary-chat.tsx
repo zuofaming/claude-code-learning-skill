@@ -5,6 +5,7 @@ import { useJournal } from "@/lib/context/journal-context";
 import { processUserMessage } from "@/lib/ai-gardener";
 import { ChatBubble } from "./chat-bubble";
 import { FlashbackCard } from "./flashback-card";
+import { SettingsDialog } from "./settings-dialog";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Send, Loader2 } from "lucide-react";
@@ -70,12 +71,17 @@ export function SanctuaryChat() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex-shrink-0 px-4 py-4 sm:px-6 sm:py-5 border-b border-border/50 bg-background/80 backdrop-blur-sm">
-        <h1 className="text-lg sm:text-xl font-serif text-foreground">
-          心灵庇护所
-        </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-          记录你的小确幸时刻
-        </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-lg sm:text-xl font-serif text-foreground">
+              心灵庇护所
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              记录你的小确幸时刻
+            </p>
+          </div>
+          <SettingsDialog />
+        </div>
       </div>
 
       {/* Messages Area */}

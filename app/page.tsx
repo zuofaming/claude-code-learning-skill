@@ -4,6 +4,7 @@ import { useState } from "react";
 import { JournalProvider } from "@/lib/context/journal-context";
 import { SanctuaryChat } from "@/components/sanctuary-chat";
 import { MemoryJar } from "@/components/memory-jar";
+import { WelcomeDialog } from "@/components/welcome-dialog";
 import { MessageCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,8 @@ function HomePage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
+      <WelcomeDialog />
+
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
         {activeTab === "sanctuary" ? <SanctuaryChat /> : <MemoryJar />}

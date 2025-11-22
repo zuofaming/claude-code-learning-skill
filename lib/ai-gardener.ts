@@ -68,17 +68,64 @@ function analyzeSentiment(
   return "neutral";
 }
 
-// Generate encouraging responses
-const ENCOURAGING_RESPONSES = [
-  "真棒，这一刻值得被记住。",
-  "很高兴听到这个好消息。",
-  "这个时刻很珍贵。",
-  "记下来了，让这份美好永远留存。",
-  "感受到你的喜悦了。",
-  "这样的时刻值得珍藏。",
-  "为你感到开心。",
-  "把这份温暖收藏起来了。",
-];
+// Generate encouraging responses - organized by context
+const ENCOURAGING_RESPONSES = {
+  work: [
+    "在工作中获得认可，真是一份值得庆祝的成就。",
+    "你的努力被看见了，这很重要。",
+    "工作中的小成就，都是成长的足迹。",
+    "记下这份职场中的温暖时刻。",
+  ],
+  social: [
+    "和在乎的人在一起的时光，总是特别珍贵。",
+    "这样真诚的连接，是生活中的小确幸。",
+    "人与人之间的温暖，值得被珍藏。",
+    "感谢你愿意分享这份快乐。",
+  ],
+  nature: [
+    "大自然总有治愈人心的力量。",
+    "在繁忙中能留意到这份美好，很难得。",
+    "这样的宁静时刻，请好好收藏。",
+    "自然的美，让心灵得到片刻安宁。",
+  ],
+  achievement: [
+    "每一个完成的目标，都值得为自己鼓掌。",
+    "你做到了，这份成就属于你。",
+    "记录下这个里程碑时刻。",
+    "为自己感到骄傲吧，你值得。",
+  ],
+  default: [
+    "真棒，这一刻值得被记住。",
+    "很高兴听到这个好消息。",
+    "这个时刻很珍贵。",
+    "记下来了，让这份美好永远留存。",
+    "感受到你的喜悦了。",
+    "这样的时刻值得珍藏。",
+    "为你感到开心。",
+    "把这份温暖收藏起来了。",
+    "生活中的小确幸，正是这样的瞬间。",
+    "谢谢你愿意和我分享这份快乐。",
+    "让我把这个美好的时刻好好收藏。",
+    "这样的时刻，是生活赠予的礼物。",
+  ],
+};
+
+// Get contextual response based on tags
+function getContextualResponse(tags: string[]): string {
+  let responses = ENCOURAGING_RESPONSES.default;
+
+  if (tags.includes("#Work")) {
+    responses = ENCOURAGING_RESPONSES.work;
+  } else if (tags.includes("#Social")) {
+    responses = ENCOURAGING_RESPONSES.social;
+  } else if (tags.includes("#Nature") || tags.includes("#Peace")) {
+    responses = ENCOURAGING_RESPONSES.nature;
+  } else if (tags.includes("#Achievement")) {
+    responses = ENCOURAGING_RESPONSES.achievement;
+  }
+
+  return responses[Math.floor(Math.random() * responses.length)];
+}
 
 // Find related memories based on tag overlap
 function findRelatedMemory(
@@ -142,11 +189,8 @@ export function processUserMessage(
   const tags = extractTags(content);
   const sentiment = analyzeSentiment(content);
 
-  // Get a random encouraging response
-  const baseResponse =
-    ENCOURAGING_RESPONSES[
-      Math.floor(Math.random() * ENCOURAGING_RESPONSES.length)
-    ];
+  // Get a contextual encouraging response based on tags
+  const baseResponse = getContextualResponse(tags);
 
   // Try to find a related memory
   const flashback = findRelatedMemory(tags, allUserMessages);
@@ -159,7 +203,7 @@ export function processUserMessage(
 
   return {
     message,
-    flashback,
+    flashback: flashback ?? undefined,
     tags,
     sentiment,
   };
