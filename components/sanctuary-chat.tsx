@@ -33,33 +33,56 @@ export function SanctuaryChat() {
     setInput("");
     setIsProcessing(true);
 
-    // Add user message
+    // Add user message with local tag extraction
+    const userMessages = messages.filter((msg) => msg.role === "user");
+    const localAnalysis = processUserMessage(userInput, userMessages);
+
     addMessage({
       role: "user",
       content: userInput,
+      tags: localAnalysis.tags,
+      sentiment: localAnalysis.sentiment,
     });
 
-    // Simulate AI processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      // Call DeepSeek API
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userInput,
+          userMessages: userMessages.map(msg => ({ content: msg.content })),
+        }),
+      });
 
-    // Process the message with AI Gardener
-    const userMessages = messages.filter((msg) => msg.role === "user");
-    const aiResponse = processUserMessage(userInput, userMessages);
+      if (!response.ok) {
+        throw new Error("Failed to get AI response");
+      }
 
-    // Add AI response
-    addMessage({
-      role: "assistant",
-      content: aiResponse.message,
-      tags: aiResponse.tags,
-      sentiment: aiResponse.sentiment,
-    });
+      const data = await response.json();
 
-    // If there's a flashback, add it as a special message
-    if (aiResponse.flashback) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Add AI response
       addMessage({
         role: "assistant",
-        content: `__FLASHBACK__${JSON.stringify(aiResponse.flashback)}`,
+        content: data.message,
+      });
+
+      // Check for flashback using local logic
+      if (localAnalysis.flashback) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        addMessage({
+          role: "assistant",
+          content: `__FLASHBACK__${JSON.stringify(localAnalysis.flashback)}`,
+        });
+      }
+    } catch (error) {
+      console.error("Error calling AI:", error);
+      // Fallback to local response if API fails
+      addMessage({
+        role: "assistant",
+        content: "记下来了，这一刻很珍贵。（AI暂时无法连接，但你的记录已保存）",
       });
     }
 

@@ -36,29 +36,47 @@ A mobile-first, conversational gratitude and happiness journal designed to help 
 ### Installation
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 npm install
 
-# Run development server
+# 2. Set up environment variables
+cp .env.example .env.local
+# Edit .env.local and add your DeepSeek API key
+
+# 3. Run development server
 npm run dev
 
-# Build for production
+# 4. Build for production
 npm run build
 
-# Start production server
+# 5. Start production server
 npm start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+### 🔑 API Configuration
+
+ZenLog uses DeepSeek AI for intelligent, context-aware responses.
+
+1. Get your API key from [DeepSeek Platform](https://platform.deepseek.com/)
+2. Copy `.env.example` to `.env.local`
+3. Add your API key:
+   ```
+   DEEPSEEK_API_KEY=your_api_key_here
+   ```
+
+The app will automatically fall back to local responses if the API is unavailable.
+
 ## 🛠️ Technology Stack
 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
+- **AI**: DeepSeek Chat API (with local fallback)
 - **Styling**: Tailwind CSS v3
 - **Components**: Custom components with Shadcn/UI patterns
 - **Icons**: Lucide React
-- **Storage**: LocalStorage (for MVP - easily upgradeable to a backend)
+- **Storage**: LocalStorage for persistence
 
 ## 📁 Project Structure
 
